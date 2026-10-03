@@ -19,8 +19,8 @@ app = Flask(__name__)
 with open("movies.pkl", "rb") as file:
     movies = pickle.load(file)
 
-with open("similarity.pkl", "rb") as file:
-    similarity = pickle.load(file)
+with open("similarity_top50.pkl", "rb") as file:
+    similarity_indices, similarity_scores = pickle.load(file)
 
 
 # =========================================================
@@ -226,115 +226,40 @@ def enrich_movies(movie_titles):
 # =========================================================
 
 def recommend(movie, limit=50):
-
     movie = movie.strip()
 
     if not movie:
-
         return []
-
-
-    # Convert title column to string
-    # and perform case-insensitive matching
 
     title_column = movies["title"].astype(str)
 
     matches = movies[
-        title_column.str.strip().str.lower()
-        == movie.lower()
+        title_column.str.strip().str.lower() == movie.lower()
     ]
 
-
-    # Movie doesn't exist in our ML dataset
-
     if matches.empty:
-
         return []
-
-
-    # Get index of selected movie
 
     movie_index = matches.index[0]
 
-
-    # Get similarity scores
-
-    distances = similarity[movie_index]
-
-
-    # Sort movies by similarity
-
-    movies_list = sorted(
-        list(enumerate(distances)),
-        reverse=True,
-        key=lambda x: x[1]
-    )
-
-
-    # Remove the movie itself
-    # and take the requested number
-
-    movies_list = movies_list[
-        1:limit + 1
-    ]
-
+    recommended_indices = similarity_indices[movie_index]
 
     recommended_titles = []
 
+    for index in recommended_indices:
 
-    for index, score in movies_list:
+        if index == movie_index:
+            continue
 
         title = movies.iloc[index]["title"]
 
         if title not in recommended_titles:
-
             recommended_titles.append(title)
 
-
-    # Get TMDB information for posters, ratings etc.
+        if len(recommended_titles) >= limit:
+            break
 
     return enrich_movies(recommended_titles)
-
-
-# =========================================================
-# SEARCH MOVIES DIRECTLY ON TMDB
-# =========================================================
-
-def search_tmdb(query):
-
-    data = tmdb_request(
-        "/search/movie",
-        {
-            "query": query,
-            "language": "en-US",
-            "include_adult": False,
-            "page": 1
-        }
-    )
-
-    results = data.get("results", [])
-
-
-    formatted_results = []
-
-
-    for movie in results[:20]:
-
-        formatted_movie = format_tmdb_movie(movie)
-
-        if formatted_movie:
-
-            formatted_results.append(
-                formatted_movie
-            )
-
-
-    return formatted_results
-
-
-# =========================================================
-# TMDB GENRES
-# =========================================================
 
 GENRES = {
 

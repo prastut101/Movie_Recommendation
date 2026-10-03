@@ -6,3 +6,4 @@ __pycache__/
 .env
 app_backup.py
 similarity.pkl
+.vercel
