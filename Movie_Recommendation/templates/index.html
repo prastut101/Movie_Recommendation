@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>
+        MovieFlix | AI Movie Recommendation
+    </title>
+
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+
+        body {
+            background: #141414;
+            color: white;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+
+        /* ================= NAVBAR ================= */
+
+        .navbar {
+
+            position: fixed;
+
+            top: 0;
+            left: 0;
+            right: 0;
+
+            height: 70px;
+
+            z-index: 1000;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            padding: 0 5%;
+
+            background:
+                linear-gradient(
+                    to bottom,
+                    rgba(0,0,0,0.95),
+                    rgba(0,0,0,0.6),
+                    transparent
+                );
+        }
+
+
+        .logo {
+
+            color: #e50914;
+
+            font-size: 28px;
+
+            font-weight: 900;
+
+            letter-spacing: -1px;
+        }
+
+
+        .nav-text {
+
+            color: #ddd;
+
+            font-size: 14px;
+        }
+
+
+        /* ================= HERO ================= */
+
+        .hero {
+
+            min-height: 650px;
+
+            position: relative;
+
+            display: flex;
+
+            align-items: center;
+
+            background-size: cover;
+
+            background-position: center;
+        }
+
+
+        .hero::before {
+
+            content: "";
+
+            position: absolute;
+
+            inset: 0;
+
+            background:
+
+                linear-gradient(
+                    to right,
+                    rgba(0,0,0,0.95),
+                    rgba(0,0,0,0.65),
+                    rgba(0,0,0,0.15)
+                ),
+
+                linear-gradient(
+                    to top,
+                    #141414,
+                    transparent 40%
+                );
+        }
+
+
+        .hero-content {
+
+            position: relative;
+
+            z-index: 2;
+
+            max-width: 650px;
+
+            padding: 150px 5% 80px;
+        }
+
+
+        .hero-title {
+
+            font-size: clamp(42px, 6vw, 75px);
+
+            line-height: 1;
+
+            margin-bottom: 20px;
+
+            font-weight: 900;
+        }
+
+
+        .hero-meta {
+
+            display: flex;
+
+            gap: 15px;
+
+            align-items: center;
+
+            margin-bottom: 20px;
+
+            color: #ddd;
+        }
+
+
+        .rating {
+
+            color: #46d369;
+
+            font-weight: bold;
+        }
+
+
+        .hero-overview {
+
+            color: #ddd;
+
+            line-height: 1.6;
+
+            font-size: 16px;
+
+            margin-bottom: 20px;
+        }
+
+
+        /* ================= SEARCH ================= */
+
+        .search-container {
+
+            position: relative;
+
+            z-index: 10;
+
+            margin-top: -70px;
+
+            padding: 0 5% 50px;
+        }
+
+
+        .search-box {
+
+            max-width: 800px;
+
+            margin: auto;
+
+            display: flex;
+
+            background: rgba(255,255,255,0.12);
+
+            backdrop-filter: blur(15px);
+
+            border: 1px solid rgba(255,255,255,0.2);
+
+            border-radius: 8px;
+
+            overflow: hidden;
+        }
+
+
+        .search-box input {
+
+            flex: 1;
+
+            background: transparent;
+
+            border: none;
+
+            outline: none;
+
+            padding: 18px 20px;
+
+            color: white;
+
+            font-size: 16px;
+        }
+
+
+        .search-box input::placeholder {
+
+            color: #aaa;
+        }
+
+
+        .search-box button {
+
+            background: #e50914;
+
+            color: white;
+
+            border: none;
+
+            padding: 0 30px;
+
+            font-size: 16px;
+
+            font-weight: bold;
+
+            cursor: pointer;
+        }
+
+
+        .search-box button:hover {
+
+            background: #f40612;
+        }
+
+
+        /* ================= CONTENT ================= */
+
+        .content {
+
+            padding: 20px 5% 70px;
+        }
+
+
+        .section-title {
+
+            font-size: 24px;
+
+            margin: 35px 0 20px;
+        }
+
+
+        .section-title strong {
+
+            color: #ddd;
+        }
+
+
+        /* ================= MOVIE GRID ================= */
+
+        .movie-grid {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(5, 1fr);
+
+            gap: 18px;
+        }
+
+
+        .movie-card {
+
+            position: relative;
+
+            aspect-ratio: 2 / 3;
+
+            border-radius: 5px;
+
+            overflow: hidden;
+
+            background: #222;
+
+            cursor: pointer;
+
+            transition:
+                transform 0.25s ease,
+                box-shadow 0.25s ease;
+        }
+
+
+        .movie-card:hover {
+
+            transform: scale(1.06);
+
+            z-index: 20;
+
+            box-shadow:
+                0 10px 30px rgba(0,0,0,0.8);
+        }
+
+
+        .movie-card img {
+
+            width: 100%;
+
+            height: 100%;
+
+            object-fit: cover;
+
+            display: block;
+
+            transition:
+                transform 0.3s ease;
+        }
+
+
+        .movie-card:hover img {
+
+            transform: scale(1.05);
+        }
+
+
+        .movie-overlay {
+
+            position: absolute;
+
+            inset: 0;
+
+            display: flex;
+
+            flex-direction: column;
+
+            justify-content: flex-end;
+
+            padding: 18px;
+
+            background:
+                linear-gradient(
+                    to top,
+                    rgba(0,0,0,0.95),
+                    rgba(0,0,0,0.2),
+                    transparent
+                );
+
+            opacity: 0;
+
+            transition:
+                opacity 0.25s ease;
+        }
+
+
+        .movie-card:hover .movie-overlay {
+
+            opacity: 1;
+        }
+
+
+        .movie-title {
+
+            font-size: 16px;
+
+            font-weight: bold;
+
+            margin-bottom: 8px;
+        }
+
+
+        .movie-meta {
+
+            font-size: 13px;
+
+            color: #ccc;
+
+            display: flex;
+
+            gap: 10px;
+        }
+
+
+        .movie-rating {
+
+            color: #46d369;
+
+            font-weight: bold;
+        }
+
+
+        /* ================= COLLECTION ================= */
+
+        .horizontal-scroll {
+
+            display: flex;
+
+            gap: 15px;
+
+            overflow-x: auto;
+
+            padding-bottom: 15px;
+        }
+
+
+        .horizontal-scroll .movie-card {
+
+            flex: 0 0 180px;
+        }
+
+
+        /* ================= EMPTY ================= */
+
+        .empty {
+
+            text-align: center;
+
+            color: #888;
+
+            padding: 70px 20px;
+        }
+
+
+        /* ================= PAGINATION ================= */
+
+        .pagination {
+
+            display: flex;
+
+            justify-content: center;
+
+            align-items: center;
+
+            gap: 8px;
+
+            margin-top: 50px;
+        }
+
+
+        .pagination a {
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            width: 40px;
+
+            height: 40px;
+
+            border-radius: 4px;
+
+            background: #292929;
+
+            color: white;
+
+            text-decoration: none;
+        }
+
+
+        .pagination a:hover {
+
+            background: #444;
+        }
+
+
+        .pagination a.active {
+
+            background: #e50914;
+
+            font-weight: bold;
+        }
+
+
+        /* ================= FOOTER ================= */
+
+        footer {
+
+            border-top:
+                1px solid #292929;
+
+            padding: 40px 5%;
+
+            color: #777;
+
+            text-align: center;
+
+            font-size: 13px;
+        }
+
+
+        footer strong {
+
+            color: #aaa;
+        }
+
+
+        /* ================= RESPONSIVE ================= */
+
+        @media (max-width: 1200px) {
+
+            .movie-grid {
+
+                grid-template-columns:
+                    repeat(4, 1fr);
+            }
+        }
+
+
+        @media (max-width: 900px) {
+
+            .movie-grid {
+
+                grid-template-columns:
+                    repeat(3, 1fr);
+            }
+
+            .hero {
+
+                min-height: 600px;
+            }
+        }
+
+
+        @media (max-width: 600px) {
+
+            .navbar {
+
+                height: 60px;
+
+                padding: 0 20px;
+            }
+
+
+            .logo {
+
+                font-size: 22px;
+            }
+
+
+            .nav-text {
+
+                display: none;
+            }
+
+
+            .hero {
+
+                min-height: 550px;
+            }
+
+
+            .hero-content {
+
+                padding:
+                    120px 20px 60px;
+            }
+
+
+            .hero-title {
+
+                font-size: 42px;
+            }
+
+
+            .hero-overview {
+
+                font-size: 14px;
+            }
+
+
+            .search-container {
+
+                padding:
+                    0 20px 30px;
+            }
+
+
+            .search-box {
+
+                flex-direction: column;
+            }
+
+
+            .search-box input {
+
+                padding: 15px;
+            }
+
+
+            .search-box button {
+
+                padding: 14px;
+            }
+
+
+            .content {
+
+                padding:
+                    10px 20px 50px;
+            }
+
+
+            .movie-grid {
+
+                grid-template-columns:
+                    repeat(2, 1fr);
+
+                gap: 12px;
+            }
+
+
+            .movie-card:hover {
+
+                transform: scale(1.02);
+            }
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <!-- =================================================
+         NAVBAR
+    ================================================== -->
+
+    <nav class="navbar">
+
+        <div class="logo">
+            MOVIEFLIX
+        </div>
+
+        <div class="nav-text">
+            AI Movie Recommendation
+        </div>
+
+    </nav>
+
+
+    <!-- =================================================
+         HERO
+    ================================================== -->
+
+    {% if hero %}
+
+        <section
+            class="hero"
+            style="
+                background-image:
+                url('{{ hero.backdrop or hero.poster }}');
+            "
+        >
+
+            <div class="hero-content">
+
+                <h1 class="hero-title">
+                    {{ hero.title }}
+                </h1>
+
+
+                <div class="hero-meta">
+
+                    {% if hero.rating %}
+                        <span class="rating">
+                            ★ {{ hero.rating }}
+                        </span>
+                    {% endif %}
+
+
+                    {% if hero.year %}
+                        <span>
+                            {{ hero.year }}
+                        </span>
+                    {% endif %}
+
+                    <span>
+                        TMDB
+                    </span>
+
+                </div>
+
+
+                {% if hero.overview %}
+
+                    <p class="hero-overview">
+                        {{ hero.overview }}
+                    </p>
+
+                {% endif %}
+
+            </div>
+
+        </section>
+
+    {% else %}
+
+        <section class="hero">
+
+            <div class="hero-content">
+
+                <h1 class="hero-title">
+                    Find Your Next Movie
+                </h1>
+
+                <div class="hero-meta">
+
+                    <span>
+                        AI Powered
+                    </span>
+
+                    <span>
+                        •
+                    </span>
+
+                    <span>
+                        Content Based Recommendation
+                    </span>
+
+                </div>
+
+                <p class="hero-overview">
+                    Search for a movie and discover similar
+                    movies using machine learning and TMDB.
+                </p>
+
+            </div>
+
+        </section>
+
+    {% endif %}
+
+
+    <!-- =================================================
+         SEARCH
+    ================================================== -->
+
+    <div class="search-container">
+
+        <form
+            action="/"
+            method="POST"
+            class="search-box"
+        >
+
+            <input
+                type="text"
+                name="movie"
+                placeholder="Search for a movie..."
+                value="{{ query }}"
+                autocomplete="off"
+                required
+            >
+
+            <button type="submit">
+                Search
+            </button>
+
+        </form>
+
+    </div>
+
+
+    <!-- =================================================
+         MAIN CONTENT
+    ================================================== -->
+
+    <main class="content">
+
+
+        <!-- =================================================
+             ML RECOMMENDATIONS
+        ================================================== -->
+
+        {% if recommendations %}
+
+            <section>
+
+                <h2 class="section-title">
+
+                    Because you searched for
+
+                    <strong>
+                        "{{ query }}"
+                    </strong>
+
+                </h2>
+
+
+                <div class="movie-grid">
+
+                    {% for movie in recommendations %}
+
+                        <div class="movie-card">
+
+                            <img
+                                src="{{ movie.poster }}"
+                                alt="{{ movie.title }}"
+                                loading="lazy"
+                                onerror="
+                                    this.src='/static/no-poster.png';
+                                "
+                            >
+
+
+                            <div class="movie-overlay">
+
+                                <div class="movie-title">
+                                    {{ movie.title }}
+                                </div>
+
+
+                                <div class="movie-meta">
+
+                                    {% if movie.rating %}
+
+                                        <span class="movie-rating">
+                                            ★ {{ movie.rating }}
+                                        </span>
+
+                                    {% endif %}
+
+
+                                    {% if movie.year %}
+
+                                        <span>
+                                            {{ movie.year }}
+                                        </span>
+
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+            </section>
+
+        {% endif %}
+
+
+        <!-- =================================================
+             TMDB SEARCH RESULTS
+        ================================================== -->
+
+        {% if search_results %}
+
+            <section>
+
+                <h2 class="section-title">
+                    Search Results
+                </h2>
+
+
+                <div class="movie-grid">
+
+                    {% for movie in search_results %}
+
+                        <div class="movie-card">
+
+                            <img
+                                src="{{ movie.poster }}"
+                                alt="{{ movie.title }}"
+                                loading="lazy"
+                                onerror="
+                                    this.src='/static/no-poster.png';
+                                "
+                            >
+
+
+                            <div class="movie-overlay">
+
+                                <div class="movie-title">
+                                    {{ movie.title }}
+                                </div>
+
+
+                                <div class="movie-meta">
+
+
+
+                                    {% if movie.rating %}
+                                        <span>⭐ {{ movie.rating }}</span>
+                                    {% endif %}
+
+                                    {% if movie.year %}
+                                        <span>{{ movie.year }}</span>
+                                    {% endif %}
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+            </section>
+
+        {% endif %}
+
+        {% if parts %}
+            <section>
+                <h2 class="section-title">Collection</h2>
+
+                <div class="collection-row">
+
+                    {% for movie in parts %}
+
+                        <div class="collection-card">
+
+                            <img
+                                src="{{ movie.poster }}"
+                                alt="{{ movie.title }}"
+                                loading="lazy"
+                                onerror="this.src='/static/no-poster.png';"
+                            >
+
+                            <div class="collection-info">
+
+                                <div class="collection-title">
+                                    {{ movie.title }}
+                                </div>
+
+                                {% if movie.year %}
+                                    <span>{{ movie.year }}</span>
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+            </section>
+        {% endif %}
+
+        {% if total_pages > 1 %}
+
+            <div class="pagination">
+
+                {% if page > 1 %}
+                    <a href="/?query={{ query|urlencode }}&page={{ page - 1 }}">
+                        ← Previous
+                    </a>
+                {% endif %}
+
+                <span>
+                    Page {{ page }} of {{ total_pages }}
+                </span>
+
+                {% if page < total_pages %}
+                    <a href="/?query={{ query|urlencode }}&page={{ page + 1 }}">
+                        Next →
+                    </a>
+                {% endif %}
+
+            </div>
+
+        {% endif %}
+
+        {% if query and not recommendations and not search_results %}
+
+            <section class="empty-state">
+                <h2>No movies found</h2>
+                <p>Try another movie title or genre.</p>
+            </section>
+
+        {% endif %}
+
+    </main>
+
+    <footer>
+
+        <p>
+            Movie Recommendation System
+        </p>
+
+        <p>
+            Movie data and images provided by TMDB.
+        </p>
+
+    </footer>
+
+</body>
+
+</html>
+

@@ -4,3 +4,13 @@
 !datasets/
 !datasets/tmdb_5000_credits.csv
 !datasets/tmdb_5000_movies.csv
+!Movie_Recommendation/
+!Movie_Recommendation/**
+!Movie_Recommendation/.gitignore
+!Movie_Recommendation/Procfile
+!Movie_Recommendation/app.py
+!Movie_Recommendation/movies.pkl
+!Movie_Recommendation/similarity_top50.pkl
+!Movie_Recommendation/requirements.txt
+!Movie_Recommendation/templates/
+!Movie_Recommendation/templates/**
